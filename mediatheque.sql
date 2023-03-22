@@ -25,6 +25,8 @@ CREATE TABLE dvd (
     FOREIGN KEY (reserveur) REFERENCES abonne(idAbonne)
 );
 
+INSERT INTO abonne(idAbonne, nom, dateNaissance) VALUES (1, Patrick, 2003-02-18);
+INSERT INTO abonne(idAbonne, nom, dateNaissance) VALUES (2, Gerator, 2005-02-18);
 
 -- COMMIT
 COMMIT;
