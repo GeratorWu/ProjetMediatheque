@@ -17,7 +17,7 @@ public class Service implements Runnable{
 		Scanner socketIn;
 		try {
 			socketIn = new Scanner(new InputStreamReader(socket.getInputStream ( )));
-			int lc = socketIn.nextInt();
+			int idAbonne = socketIn.nextInt();
 			int m = socketIn.nextInt();
 			Thread t = new Thread(new Inscription(cours.get(lc-1), m));
 			t.start();
