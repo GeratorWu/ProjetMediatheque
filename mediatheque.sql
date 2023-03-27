@@ -38,10 +38,12 @@ CREATE TABLE Livre (
 
 -- Insertion dans les tables
 INSERT INTO Abonne VALUES
-    (1, 'Durand', 'Marie', '1995-02-15'),
-    (2, 'Dubois', 'Pierre', '1988-06-20'),
-    (3, 'Lefebvre', 'Sophie', '2001-12-03'),
-    (4, 'Martin', 'Antoine', '1976-09-28');
+    (1, 'Wu', 'Patrick', '2003-02-18'),
+    (2, 'Petit', 'Pat', '2010-06-20'),
+    (3, 'Durand', 'Marie', '1995-02-15'),
+    (4, 'Dubois', 'Pierre', '1988-06-20'),
+    (5, 'Lefebvre', 'Sophie', '2001-12-03'),
+    (6, 'Martin', 'Antoine', '1976-09-28');
 
 INSERT INTO DVD (idDvd, titre, adulte, emprunteur, reserveur) VALUES
     (1, 'Le Seigneur des Anneaux : La Communauté de l Anneau', 0, NULL, NULL),

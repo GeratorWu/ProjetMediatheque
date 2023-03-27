@@ -16,20 +16,23 @@ public class Service implements Runnable{
 	public void run() {
 		Scanner socketIn;
 		try {
+			System.out.println("Serveur démarré sur le port : " + socket.getLocalPort());
 			socketIn = new Scanner(new InputStreamReader(socket.getInputStream ( )));
+			PrintWriter socketOut = new PrintWriter (socket.getOutputStream ( ), true);
+			socketOut.println("test");
 			int idAbonne = socketIn.nextInt();
 			int m = socketIn.nextInt();
-			Thread t = new Thread(new Inscription(cours.get(lc-1), m));
+			/*Thread t = new Thread(new Inscription(cours.get(lc-1), m));
 			t.start();
 			try {
 				t.join();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			System.out.println("J'ai bien lu : " + lc + " " + m);
-			PrintWriter socketOut = new PrintWriter (socket.getOutputStream ( ), true);
-			socketOut.println (cours.get(lc-1).toString());
+			}*/
+			
+			//System.out.println("J'ai bien lu");
+			//socketOut.println (cours.get(lc-1).toString());
 			this.socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();

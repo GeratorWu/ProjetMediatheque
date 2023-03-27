@@ -24,7 +24,7 @@ public class DVD implements Document{
 	public Abonne emprunteur() {
 		try {
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM dvd WHERE idDvd = ?";
+			String sql = "SELECT * FROM DVD WHERE idDvd = ?";
 			PreparedStatement req = conn.prepareStatement(sql);
 			req.setInt(1, idDvd);
 			rs = req.executeQuery();
