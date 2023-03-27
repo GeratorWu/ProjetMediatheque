@@ -68,13 +68,13 @@ INSERT INTO Livre (idLiv, titre, emprunteur, reserveur) VALUES
     (10, 'Le Cycle Fondation', NULL, NULL);
 -- ajout contrainte
 ALTER TABLE DVD ADD CONSTRAINT emprunt_reserve CHECK (
-    (emprunteur IS NULL OR reserveur IS NULL) AND
+    (emprunteur IS NULL OR reserveur IS NULL) OR
     (emprunteur IS NOT NULL AND reserveur IS NULL) OR
     (emprunteur IS NULL AND reserveur IS NOT NULL)
 );
 
 ALTER TABLE Livre ADD CONSTRAINT emprunt_reserve CHECK (
-    (emprunteur IS NULL OR reserveur IS NULL) AND
+    (emprunteur IS NULL OR reserveur IS NULL) OR
     (emprunteur IS NOT NULL AND reserveur IS NULL) OR
     (emprunteur IS NULL AND reserveur IS NOT NULL)
 );
