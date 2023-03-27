@@ -24,17 +24,23 @@ public class Service implements Runnable{
 			socketIn = new Scanner(new InputStreamReader(socket.getInputStream ( )));
 			int idAbonne;
 			int idDvd;
+			Abonne ab;
+			DVD dvd;
 			switch(socket.getLocalPort()) {
 			case 3000:
 				idAbonne = socketIn.nextInt();
+				ab = new Abonne(connection, idAbonne);
 				idDvd = socketIn.nextInt();
-				DVD dvd = new DVD(connection, idDvd);
-				System.out.println(dvd.emprunteur());
+				dvd = new DVD(connection, idDvd);
+				dvd.reservationPour(ab);
 				socketOut.println("Bonjour " + idAbonne + ", vous avez réserver le DVD : " + idDvd);
 				break;
 			case 4000:
 				idAbonne = socketIn.nextInt();
+				ab = new Abonne(connection, idAbonne);
 				idDvd = socketIn.nextInt();
+				dvd = new DVD(connection, idDvd);
+				dvd.empruntPar(ab);
 				socketOut.println("Bonjour " + idAbonne + ", vous avez emprunter le DVD : " + idDvd);
 				break;
 			case 5000:
@@ -44,7 +50,7 @@ public class Service implements Runnable{
 			default:
 				System.out.println("Port non pris en charge.");
 			}
-			
+			conn.closeConnection();
 			this.socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -3,7 +3,6 @@ package Serveur;
 import java.sql.*;
 
 public class DVD implements Document{
-	private Abonne abonne;
 	private int idDvd;
 	private Connection conn;
 	Statement stmt = null;
@@ -19,7 +18,6 @@ public class DVD implements Document{
 		return this.idDvd;
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public Abonne emprunteur() {
 		Abonne abo = null;
@@ -31,33 +29,93 @@ public class DVD implements Document{
 			rs = req.executeQuery();
 			while(rs.next()) {
 				Integer a = rs.getInt("emprunteur");
-				abo = new Abonne(this.conn, a);
-				if (a==null) {
-					return null;
-				}
-				return abo;
+				if (!rs.wasNull()) {
+	                abo = new Abonne(this.conn, a);
+	            }
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
+		try { rs.close(); } catch (Exception e) {}
+        try { stmt.close(); } catch (Exception e) {}
+		
+		return abo;
 	}
 
 	@Override
 	public Abonne reserveur() {
-		// TODO Auto-generated method stub
-		return null;
+		Abonne abo = null;
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT * FROM dvd WHERE idDvd = ?";
+			PreparedStatement req = conn.prepareStatement(sql);
+			req.setInt(1, idDvd);
+			rs = req.executeQuery();
+			while(rs.next()) {
+				Integer a = rs.getInt("reserveur");
+				if (!rs.wasNull()) {
+	                abo = new Abonne(this.conn, a);
+	            }
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try { rs.close(); } catch (Exception e) {}
+        try { stmt.close(); } catch (Exception e) {}
+		
+		return abo;
 	}
 
 	@Override
 	public void reservationPour(Abonne ab) {
-		// TODO Auto-generated method stub
+		assert(this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
+		assert(this.reserveur() == null) : "Le DVD a déjà été réservé.";
+		try {
+			stmt = conn.createStatement();
+			String sql = "UPDATE dvd SET reserveur = ? WHERE idDvd = ?";
+			PreparedStatement req = conn.prepareStatement(sql);
+			req.setInt(1, ab.getIdAbonne());
+			req.setInt(2, idDvd);
+			int result = req.executeUpdate();
+	        if (result > 0) {
+	            System.out.println("La réservation a été effectuée avec succès.");
+	        } else {
+	            System.out.println("La réservation a échoué.");
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try { rs.close(); } catch (Exception e) {}
+        try { stmt.close(); } catch (Exception e) {}
 		
 	}
 
 	@Override
 	public void empruntPar(Abonne ab) {
-		// TODO Auto-generated method stub
+		assert(this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
+		System.out.println(this.reserveur() + " et " + ab);
+		assert(this.reserveur() == null || this.reserveur().toString().equals(ab.toString())) : "Le DVD a déjà été réservé par quelqu'un d'autre.";
+		try {
+			stmt = conn.createStatement();
+			String sql1 = "UPDATE dvd SET reserveur = null WHERE idDvd = ?";
+			PreparedStatement req1 = conn.prepareStatement(sql1);
+			req1.setInt(1, idDvd);
+			req1.executeUpdate();
+			String sql2 = "UPDATE dvd SET emprunteur = ? WHERE idDvd = ?";
+			PreparedStatement req2 = conn.prepareStatement(sql2);
+			req2.setInt(1, ab.getIdAbonne());
+			req2.setInt(2, idDvd);
+			int result = req2.executeUpdate();
+	        if (result > 0) {
+	            System.out.println("L'emprunt a été effectuée avec succès.");
+	        } else {
+	            System.out.println("L'emprunt a échoué.");
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try { rs.close(); } catch (Exception e) {}
+        try { stmt.close(); } catch (Exception e) {}
 		
 	}
 

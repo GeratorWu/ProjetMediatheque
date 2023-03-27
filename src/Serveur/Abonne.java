@@ -16,6 +16,23 @@ public class Abonne {
 		this.idAbonne = idAbonne;
 	}
 	
+	public Integer getIdAbonne() {
+		return this.idAbonne;
+	}
+	
+	public String getNom() {
+		return this.nom;
+	}
+
+	public String getPrenom() {
+		return this.prenom;
+	}
+
+	public Date getDateNaissance() {
+		return this.dateNaissance;
+	}
+
+
 	public String toString() {
 		String s = "";
 		try {
