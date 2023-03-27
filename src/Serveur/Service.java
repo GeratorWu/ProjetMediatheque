@@ -17,22 +17,29 @@ public class Service implements Runnable{
 		Scanner socketIn;
 		try {
 			System.out.println("Serveur démarré sur le port : " + socket.getLocalPort());
-			socketIn = new Scanner(new InputStreamReader(socket.getInputStream ( )));
 			PrintWriter socketOut = new PrintWriter (socket.getOutputStream ( ), true);
-			socketOut.println("test");
-			int idAbonne = socketIn.nextInt();
-			int m = socketIn.nextInt();
-			/*Thread t = new Thread(new Inscription(cours.get(lc-1), m));
-			t.start();
-			try {
-				t.join();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/
+			socketIn = new Scanner(new InputStreamReader(socket.getInputStream ( )));
+			int idAbonne;
+			int idDvd;
+			switch(socket.getLocalPort()) {
+			case 3000:
+				idAbonne = socketIn.nextInt();
+				idDvd = socketIn.nextInt();
+				socketOut.println("Bonjour " + idAbonne + ", vous avez réserver le DVD : " + idDvd);
+				break;
+			case 4000:
+				idAbonne = socketIn.nextInt();
+				idDvd = socketIn.nextInt();
+				socketOut.println("Bonjour " + idAbonne + ", vous avez emprunter le DVD : " + idDvd);
+				break;
+			case 5000:
+				idDvd = socketIn.nextInt();
+				socketOut.println("Bonjour, vous avez rendu le DVD : " + idDvd);
+				break;
+			default:
+				System.out.println("Port non pris en charge.");
+			}
 			
-			//System.out.println("J'ai bien lu");
-			//socketOut.println (cours.get(lc-1).toString());
 			this.socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
