@@ -22,18 +22,20 @@ public class DVD implements Document{
 	@SuppressWarnings("unused")
 	@Override
 	public Abonne emprunteur() {
+		Abonne abo = null;
 		try {
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM DVD WHERE idDvd = ?";
+			String sql = "SELECT * FROM dvd WHERE idDvd = ?";
 			PreparedStatement req = conn.prepareStatement(sql);
 			req.setInt(1, idDvd);
 			rs = req.executeQuery();
 			while(rs.next()) {
 				Integer a = rs.getInt("emprunteur");
-				Integer b = rs.getInt("reserveur");
-				if (a==null && b == null) {
+				abo = new Abonne(this.conn, a);
+				if (a==null) {
 					return null;
 				}
+				return abo;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

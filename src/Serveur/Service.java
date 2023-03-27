@@ -1,17 +1,20 @@
 package Serveur;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.sql.Connection;
 import java.util.Scanner;
 
 public class Service implements Runnable{
 	private Socket socket;
+	private DatabaseConnection conn;
+	private Connection connection;
 	
 	public Service(Socket socket) {
 		this.socket = socket;
+		conn = new DatabaseConnection();
+		connection = conn.getConnection();
 	}
 	public void run() {
 		Scanner socketIn;
@@ -25,6 +28,8 @@ public class Service implements Runnable{
 			case 3000:
 				idAbonne = socketIn.nextInt();
 				idDvd = socketIn.nextInt();
+				DVD dvd = new DVD(connection, idDvd);
+				System.out.println(dvd.emprunteur());
 				socketOut.println("Bonjour " + idAbonne + ", vous avez réserver le DVD : " + idDvd);
 				break;
 			case 4000:
