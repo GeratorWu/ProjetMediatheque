@@ -1,19 +1,25 @@
 package Serveur;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.Period;
 
 public class Abonne {
 	private Integer idAbonne;
 	private String nom;
 	private String prenom;
-	private Date dateNaissance;
+	private LocalDate dateNaissance;
+	private boolean adulte;
 	private Connection conn;
 	Statement stmt = null;
     ResultSet rs = null;
 	
-	public Abonne(Connection conn,Integer idAbonne) {
-		this.conn = conn;
+	public Abonne(Integer idAbonne, String nom, String prenom, LocalDate dateNaissance) {
 		this.idAbonne = idAbonne;
+		this.nom = nom;
+		this.prenom = prenom;
+		this.dateNaissance = dateNaissance;
+		adulte = this.estAdulte(dateNaissance);
 	}
 	
 	public Integer getIdAbonne() {
@@ -28,11 +34,24 @@ public class Abonne {
 		return this.prenom;
 	}
 
-	public Date getDateNaissance() {
+	public LocalDate getDateNaissance() {
 		return this.dateNaissance;
 	}
+	
+	public boolean getAdulte() {
+		return this.adulte;
+	}
 
-
+	public boolean estAdulte(LocalDate dateNaissance2) {
+	    LocalDate maintenant = LocalDate.now();
+	    Period periode = Period.between(dateNaissance2, maintenant);
+	    int age = periode.getYears();
+	    if (periode.getMonths() > 0 || (periode.getMonths() == 0 && periode.getDays() > 0)) {
+	        age--;
+	    }
+	    return age >= 16;
+	}
+	
 	public String toString() {
 		String s = "";
 		try {

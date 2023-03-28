@@ -40,7 +40,7 @@ CREATE TABLE Livre (
 INSERT INTO Abonne VALUES
     (1, 'Wu', 'Patrick', '2003-02-18'),
     (2, 'Petit', 'Pat', '2010-06-20'),
-    (3, 'Durand', 'Marie', '1995-02-15'),
+    (3, 'Presque', 'Patoche', '2007-03-29'),
     (4, 'Dubois', 'Pierre', '1988-06-20'),
     (5, 'Lefebvre', 'Sophie', '2001-12-03'),
     (6, 'Martin', 'Antoine', '1976-09-28');
@@ -48,12 +48,12 @@ INSERT INTO Abonne VALUES
 INSERT INTO DVD (idDvd, titre, adulte, emprunteur, reserveur) VALUES
     (1, 'Le Seigneur des Anneaux : La Communauté de l Anneau', 0, NULL, NULL),
     (2, 'Pulp Fiction', 1, 1, NULL),
-    (3, 'Fight Club', 1, NULL, 3),
+    (3, 'Fight Club', 1, NULL, NULL),
     (4, 'La La Land', 0, NULL, 4),
     (5, 'Le Roi Lion', 0, NULL, 1),
-    (6, 'Matrix', 1, 2, NULL),
+    (6, 'Matrix', 1, NULL, NULL),
     (7, 'Star Wars : L Empire contre-attaque', 0, NULL, NULL),
-    (8, 'Forrest Gump', 0, 2, NULL),
+    (8, 'Forrest Gump', 0, NULL, NULL),
     (9, 'Le Silence des Agneaux', 1, NULL, NULL),
     (10, 'Les Évadés', 0, NULL, NULL);
 
