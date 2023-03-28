@@ -51,22 +51,4 @@ public class Abonne {
 	    }
 	    return age >= 16;
 	}
-	
-	public String toString() {
-		String s = "";
-		try {
-			stmt = conn.createStatement();
-			String sql = "SELECT * FROM abonne WHERE idAbonne = ?";
-			PreparedStatement req = conn.prepareStatement(sql);
-			req.setInt(1, idAbonne);
-			rs = req.executeQuery();
-			while(rs.next()) {
-				String prenom = rs.getString("prenom");
-				s = s+("Bonjour " + prenom);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return s;
-	}
 }

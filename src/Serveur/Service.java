@@ -18,8 +18,8 @@ public class Service implements Runnable{
 	private Socket socket;
 	private DatabaseConnection conn;
 	private Connection connection;
-	Statement stmt = null;
-    ResultSet rs = null;
+	private Statement stmt = null;
+    private ResultSet rs = null;
 	private static List<DVD> listeDVD = new ArrayList<DVD>();
 	private static List<Abonne> listeAbonne = new ArrayList<Abonne>();
 	
@@ -153,22 +153,29 @@ public class Service implements Runnable{
 	
 	public void sauvegardeDVD(int idDvd) {
 		DVD dvd = this.trouverDVDParId(idDvd);
+		Integer a = 0;
+		Integer b = 0;
 		try {
 			stmt = connection.createStatement();
 			String sql = "UPDATE dvd set emprunteur = ?, reserveur = ? WHERE idDvd = ?";
 			PreparedStatement req = connection.prepareStatement(sql);
-			req.setInt(1, dvd.emprunteur().getIdAbonne());
-			req.setInt(2, dvd.reserveur().getIdAbonne());
-			req.setInt(3, dvd.numero());
-			if (dvd.emprunteur().getIdAbonne() == null) {
-				req.setNull(1, dvd.emprunteur().getIdAbonne());
+			Abonne emprunteur = dvd.emprunteur();
+			if(emprunteur != null) {
+				a = emprunteur.getIdAbonne();
 			}
-			else if (dvd.reserveur().getIdAbonne() == null) {
-				req.setNull(2, dvd.reserveur().getIdAbonne());
+			else {
+				a = null;
 			}
+			req.setObject(1, a, java.sql.Types.INTEGER);
 			
-			req.setInt(1, dvd.emprunteur().getIdAbonne());
-			req.setInt(2, dvd.reserveur().getIdAbonne());
+			Abonne reserveur = dvd.reserveur();
+			if(reserveur != null) {
+				b = reserveur.getIdAbonne();
+			}
+			else {
+				b = null;
+			}
+			req.setObject(2, b, java.sql.Types.INTEGER);
 			req.setInt(3, dvd.numero());
 			int result = req.executeUpdate();
 			if (result > 0) {

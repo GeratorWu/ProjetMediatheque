@@ -51,7 +51,7 @@ public class DVD implements Document{
 	@Override
 	public void empruntPar(Abonne ab) {
 		assert(this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
-		assert(this.reserveur() == null || this.reserveur().toString().equals(ab.toString())) : "Le DVD a déjà été réservé par quelqu'un d'autre.";
+		assert(this.reserveur() == null || this.reserveur().getIdAbonne() == ab.getIdAbonne()) : "Le DVD a déjà été réservé par quelqu'un d'autre.";
 		if(this.getAdulte()) {
 			assert(this.getAdulte() == ab.getAdulte()) : "Vous n'avez pas l'âge pour réserver ce DVD.";
 		}
