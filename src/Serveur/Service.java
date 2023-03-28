@@ -49,6 +49,7 @@ public class Service implements Runnable{
 				dvd = this.trouverDVDParId(idDvd);
 				dvd.reservationPour(ab);
 				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez réserver le DVD : " + dvd.getTitre());
+				this.sauvegardeDVD(idDvd);
 				break;
 			case 4000:
 				idAbonne = socketIn.nextInt();
@@ -57,6 +58,7 @@ public class Service implements Runnable{
 				dvd = this.trouverDVDParId(idDvd);
 				dvd.empruntPar(ab);
 				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez emprunter le DVD : " + dvd.getTitre());
+				this.sauvegardeDVD(idDvd);
 				break;
 			case 5000:
 				idDvd = socketIn.nextInt();
@@ -74,6 +76,8 @@ public class Service implements Runnable{
 				System.out.println("Port non pris en charge.");
 			}
 			conn.closeConnection();
+			try { rs.close(); } catch (Exception e) {}
+	        try { stmt.close(); } catch (Exception e) {}
 			this.socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -103,8 +107,7 @@ public class Service implements Runnable{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		try { rs.close(); } catch (Exception e) {}
-        try { stmt.close(); } catch (Exception e) {}
+		
         return listeDVD;
 	}
 	
@@ -146,5 +149,35 @@ public class Service implements Runnable{
 	        }
 	    }
 	    return null;
+	}
+	
+	public void sauvegardeDVD(int idDvd) {
+		DVD dvd = this.trouverDVDParId(idDvd);
+		try {
+			stmt = connection.createStatement();
+			String sql = "UPDATE dvd set emprunteur = ?, reserveur = ? WHERE idDvd = ?";
+			PreparedStatement req = connection.prepareStatement(sql);
+			req.setInt(1, dvd.emprunteur().getIdAbonne());
+			req.setInt(2, dvd.reserveur().getIdAbonne());
+			req.setInt(3, dvd.numero());
+			if (dvd.emprunteur().getIdAbonne() == null) {
+				req.setNull(1, dvd.emprunteur().getIdAbonne());
+			}
+			else if (dvd.reserveur().getIdAbonne() == null) {
+				req.setNull(2, dvd.reserveur().getIdAbonne());
+			}
+			
+			req.setInt(1, dvd.emprunteur().getIdAbonne());
+			req.setInt(2, dvd.reserveur().getIdAbonne());
+			req.setInt(3, dvd.numero());
+			int result = req.executeUpdate();
+			if (result > 0) {
+	            System.out.println("Sauvegarde réussie");
+	        } else {
+	            System.out.println("Sauvegarde écouché.");
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }
