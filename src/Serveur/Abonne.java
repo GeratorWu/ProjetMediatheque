@@ -1,6 +1,5 @@
 package Serveur;
 
-import java.sql.*;
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -10,9 +9,6 @@ public class Abonne {
 	private String prenom;
 	private LocalDate dateNaissance;
 	private boolean adulte;
-	private Connection conn;
-	Statement stmt = null;
-    ResultSet rs = null;
 	
 	public Abonne(Integer idAbonne, String nom, String prenom, LocalDate dateNaissance) {
 		this.idAbonne = idAbonne;

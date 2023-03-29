@@ -10,9 +10,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
+
+import bttp2.Codage;
 
 public class Service implements Runnable{
 	private Socket socket;
@@ -20,15 +24,15 @@ public class Service implements Runnable{
 	private Connection connection;
 	private Statement stmt = null;
     private ResultSet rs = null;
+    private static List<Abonne> listeAbonne = new ArrayList<Abonne>();
 	private static List<DVD> listeDVD = new ArrayList<DVD>();
-	private static List<Abonne> listeAbonne = new ArrayList<Abonne>();
 	
 	public Service(Socket socket) {
 		this.socket = socket;
 		conn = new DatabaseConnection();
 		connection = conn.getConnection();
-		listeDVD = this.creationObjetDvd();
 		listeAbonne = this.creationObjetAbonne();
+		listeDVD = this.creationObjetDvd();
 	}
 	public void run() {
 		Scanner socketIn;
@@ -37,19 +41,40 @@ public class Service implements Runnable{
 			PrintWriter socketOut = new PrintWriter (socket.getOutputStream ( ), true);
 			socketIn = new Scanner(new InputStreamReader(socket.getInputStream ( )));
 			int idAbonne;
-			int idDvd;
+			int idDvd = 0;
 			Abonne ab;
 			DVD dvd;
 
 			switch(socket.getLocalPort()) {
 			case 3000:
+				CountDownLatch countDownLatch = new CountDownLatch(1);
+				
+				socketOut.println(Codage.coder(this.DVDDisponible()));
 				idAbonne = socketIn.nextInt();
 				ab = this.trouverAbonneParId(idAbonne);
 				idDvd = socketIn.nextInt();
 				dvd = this.trouverDVDParId(idDvd);
 				dvd.reservationPour(ab);
-				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez réserver le DVD : " + dvd.getTitre());
+				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez réserver le DVD : " + dvd.getTitre() + ", vous avez jusqu'à " + dvd.getHeure2h() + " pour l'emprunter");
 				this.sauvegardeDVD(idDvd);
+				
+				Thread timer;
+				while(true) {
+					timer = new Thread(new Timer(20000, this.socket, countDownLatch));
+					timer.start();
+					try {
+					    countDownLatch.await();
+					} catch (InterruptedException e) {
+					    e.printStackTrace();
+					}
+					timer.interrupt();
+					
+					if(dvd.emprunteur() == null){
+						dvd.annulerReservation();
+					    this.sauvegardeDVD(idDvd);
+					}
+					break;
+				}
 				break;
 			case 4000:
 				idAbonne = socketIn.nextInt();
@@ -58,7 +83,6 @@ public class Service implements Runnable{
 				dvd = this.trouverDVDParId(idDvd);
 				dvd.empruntPar(ab);
 				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez emprunter le DVD : " + dvd.getTitre());
-				this.sauvegardeDVD(idDvd);
 				break;
 			case 5000:
 				idDvd = socketIn.nextInt();
@@ -75,6 +99,7 @@ public class Service implements Runnable{
 			default:
 				System.out.println("Port non pris en charge.");
 			}
+			this.sauvegardeDVD(idDvd);
 			conn.closeConnection();
 			try { rs.close(); } catch (Exception e) {}
 	        try { stmt.close(); } catch (Exception e) {}
@@ -186,5 +211,14 @@ public class Service implements Runnable{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public String DVDDisponible() {
+		String a = "Voici la liste des DVD disponibles :##";
+		for(DVD dispodvd : listeDVD) {
+			if(dispodvd.disponible() == true)
+				a = a + "Numéro du dvd : " +dispodvd.numero() + ", il a pour titre : " + dispodvd.getTitre() + "##";
+		}
+		return a;
 	}
 }

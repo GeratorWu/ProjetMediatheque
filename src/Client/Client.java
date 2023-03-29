@@ -5,12 +5,14 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
+import bttp2.Codage;
+
 public class Client {
 
-	  public static void main(String[] args) {
+	  public static void main(String[] args) throws IOException {
 		  int port = Integer.parseInt(args[0]);
 
-		    Socket socket;
+		    Socket socket = null;
 	
 		    try {
 		    	socket = new Socket("localhost", port);
@@ -21,6 +23,7 @@ public class Client {
 				
 				switch(port) {
 				case 3000:
+					System.out.println(Codage.decoder(socketIn.nextLine()));
 					System.out.println("Quel est votre numéro d'abonné ?");
 					socketOut.println(sc.nextLine());
 					System.out.println("Quel est le numéro du DVD que vous voulez réserver ?");
@@ -39,14 +42,12 @@ public class Client {
 				default:
 					System.out.println("Port non pris en charge.");
 				}
-				
 				System.out.println(socketIn.nextLine());
-				
 				socket.close();
 				sc.close();
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
+			} 
 	  }
 
 }
