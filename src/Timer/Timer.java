@@ -1,4 +1,4 @@
-package Serveur;
+package Timer;
 
 import java.io.IOException;
 import java.net.Socket;

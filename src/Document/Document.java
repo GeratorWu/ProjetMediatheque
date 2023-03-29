@@ -1,4 +1,6 @@
-package Serveur;
+package Document;
+
+import Abonne.Abonne;
 
 public interface Document {
 	int numero();

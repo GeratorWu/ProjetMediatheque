@@ -1,8 +1,9 @@
-package Serveur;
+package Document;
 
-import java.sql.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
+import Abonne.Abonne;
 
 public class DVD implements Document{
 	private int idDvd;
@@ -12,6 +13,7 @@ public class DVD implements Document{
 	private Abonne reserveur;
 	private LocalTime heure = LocalTime.now();
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+	private LocalTime heurereserve;
 
 	
 	public DVD(int idDvd, String titre, boolean adulte, Abonne emprunteur, Abonne reserveur) {
@@ -40,13 +42,18 @@ public class DVD implements Document{
 	@Override
 	public void reservationPour(Abonne ab) {
 		assert(this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
-		assert(this.reserveur() == null) : "Le DVD a déjà été réservé.";
+		assert(this.reserveur() == null) : "Le DVD est réservé jusqu'à " + this.getHeureReserve();
 		if(this.getAdulte()) {
 			assert(this.getAdulte() == ab.getAdulte()) : "Vous n'avez pas l'âge pour réserver ce DVD.";
 		}
 		this.reserveur = ab;
-		
-
+	}
+	public void setHeureReserve() {
+		this.heurereserve = this.heure.plusHours(2);
+	}
+	
+	public LocalTime getHeureReserve(){
+		return this.heurereserve;
 	}
 	
 	public void annulerReservation() {
@@ -57,7 +64,7 @@ public class DVD implements Document{
 	@Override
 	public void empruntPar(Abonne ab) {
 		assert(this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
-		assert(this.reserveur() == null || this.reserveur().getIdAbonne().equals(ab.getIdAbonne())) : "Le DVD a déjà été réservé par quelqu'un d'autre.";
+		assert(this.reserveur() == null || this.reserveur().getIdAbonne().equals(ab.getIdAbonne())) : "Le DVD est réservé jusqu'à " + this.heurereserve;
 		if(this.getAdulte()) {
 			assert(this.getAdulte() == ab.getAdulte()) : "Vous n'avez pas l'âge pour emprunter ce DVD.";
 		}

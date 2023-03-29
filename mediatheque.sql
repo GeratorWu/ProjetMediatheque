@@ -48,9 +48,9 @@ INSERT INTO Abonne VALUES
 INSERT INTO DVD (idDvd, titre, adulte, emprunteur, reserveur) VALUES
     (1, 'Le Seigneur des Anneaux : La Communauté de l Anneau', 0, NULL, NULL),
     (2, 'Pulp Fiction', 1, 1, NULL),
-    (3, 'Fight Club', 1, 1, NULL),
-    (4, 'La La Land', 0, NULL, 4),
-    (5, 'Le Roi Lion', 0, NULL, 1),
+    (3, 'Fight Club', 1, NULL, NULL),
+    (4, 'La La Land', 0, 3, NULL),
+    (5, 'Le Roi Lion', 0, NULL, NULL),
     (6, 'Matrix', 1, NULL, NULL),
     (7, 'Star Wars : L Empire contre-attaque', 0, 3, NULL),
     (8, 'Forrest Gump', 0, NULL, NULL),

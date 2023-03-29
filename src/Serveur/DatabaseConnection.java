@@ -6,15 +6,12 @@ public class DatabaseConnection {
 
 	public DatabaseConnection() {
 	    try {
-	        // Charge le driver MySQL
 	        Class.forName("com.mysql.cj.jdbc.Driver");
 
-	        // Définit les paramètres de connexion
 	        String url = "jdbc:mysql://localhost:3306/mediatheque";
 	        String username = "root";
 	        String password = "root";
 
-	        // Crée une connexion
 	        connection = DriverManager.getConnection(url, username, password);
 
 	        System.out.println("Connexion à la base de données réussie.");

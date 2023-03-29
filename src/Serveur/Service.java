@@ -10,12 +10,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 
+import Abonne.Abonne;
+import Document.DVD;
+import Timer.Timer;
 import bttp2.Codage;
 
 public class Service implements Runnable{
@@ -55,12 +57,13 @@ public class Service implements Runnable{
 				idDvd = socketIn.nextInt();
 				dvd = this.trouverDVDParId(idDvd);
 				dvd.reservationPour(ab);
+				dvd.setHeureReserve();
 				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez réserver le DVD : " + dvd.getTitre() + ", vous avez jusqu'à " + dvd.getHeure2h() + " pour l'emprunter");
 				this.sauvegardeDVD(idDvd);
 				
 				Thread timer;
 				while(true) {
-					timer = new Thread(new Timer(20000, this.socket, countDownLatch));
+					timer = new Thread(new Timer(1000 * 60 * 60 * 2, this.socket, countDownLatch));
 					timer.start();
 					try {
 					    countDownLatch.await();
@@ -159,6 +162,7 @@ public class Service implements Runnable{
 	}
 	
 	public DVD trouverDVDParId(int id) {
+		assert(id <= listeDVD.size()) : "Ce DVD n'existe pas";
 	    for (DVD dvd : listeDVD) {
 	        if (dvd.numero() == id) {
 	            return dvd;
@@ -168,6 +172,7 @@ public class Service implements Runnable{
 	}
 	
 	public Abonne trouverAbonneParId(int id) {
+		assert(id <= listeAbonne.size()) : "Cet abonné n'existe pas";
 	    for (Abonne abonne : listeAbonne) {
 	        if (abonne.getIdAbonne() == id) {
 	            return abonne;
@@ -214,11 +219,12 @@ public class Service implements Runnable{
 	}
 	
 	public String DVDDisponible() {
-		String a = "Voici la liste des DVD disponibles :##";
-		for(DVD dispodvd : listeDVD) {
-			if(dispodvd.disponible() == true)
-				a = a + "Numéro du dvd : " +dispodvd.numero() + ", il a pour titre : " + dispodvd.getTitre() + "##";
+		StringBuilder sb = new StringBuilder("Voici la liste des DVD disponibles :##");
+		for (DVD dispodvd : listeDVD) {
+			if (dispodvd.disponible()) {
+					sb.append("Numéro du DVD : ").append(dispodvd.numero()).append(", il a pour titre : ").append(dispodvd.getTitre()).append("##");
+			}
 		}
-		return a;
+		return sb.toString();
 	}
 }
