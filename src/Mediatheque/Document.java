@@ -1,4 +1,4 @@
-package Document;
+package Mediatheque;
 
 import Abonne.Abonne;
 

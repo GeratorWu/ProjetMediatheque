@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 import Abonne.Abonne;
+import Mediatheque.Document;
 
 public class DVD implements Document{
 	private int idDvd;
