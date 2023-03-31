@@ -42,12 +42,14 @@ public class DVD implements Document{
 
 	@Override
 	public void reservationPour(Abonne ab) {
-		assert(this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
-		assert(this.reserveur() == null) : "Le DVD est réservé jusqu'à " + this.getHeureReserve();
-		if(this.getAdulte()) {
-			assert(this.getAdulte() == ab.getAdulte()) : "Vous n'avez pas l'âge pour réserver ce DVD.";
+		synchronized (this) {
+			assert (this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
+			assert (this.reserveur() == null) : "Le DVD est réservé jusqu'à " + this.getHeureReserve();
+			if (this.getAdulte()) {
+				assert (this.getAdulte() == ab.getAdulte()) : "Vous n'avez pas l'âge pour réserver ce DVD.";
+			}
+			this.reserveur = ab;
 		}
-		this.reserveur = ab;
 	}
 	public void setHeureReserve() {
 		this.heurereserve = this.heure.plusHours(2);
@@ -64,13 +66,16 @@ public class DVD implements Document{
 	
 	@Override
 	public void empruntPar(Abonne ab) {
-		assert(this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
-		assert(this.reserveur() == null || this.reserveur().getIdAbonne().equals(ab.getIdAbonne())) : "Le DVD est réservé jusqu'à " + this.heurereserve;
-		if(this.getAdulte()) {
-			assert(this.getAdulte() == ab.getAdulte()) : "Vous n'avez pas l'âge pour emprunter ce DVD.";
+		synchronized (this) {
+			assert (this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
+			assert (this.reserveur() == null || this.reserveur().getIdAbonne().equals(ab.getIdAbonne()))
+					: "Le DVD est réservé jusqu'à " + this.heurereserve;
+			if (this.getAdulte()) {
+				assert (this.getAdulte() == ab.getAdulte()) : "Vous n'avez pas l'âge pour emprunter ce DVD.";
+			}
+			this.emprunteur = ab;
+			this.reserveur = null;
 		}
-		this.emprunteur = ab;
-		this.reserveur = null;
 		
 	}
 
@@ -97,6 +102,10 @@ public class DVD implements Document{
 	
 	public String getHeure2h() {
 		return this.heure.plusHours(2).format(formatter);
+	}
+	
+	public String toString() {
+		return this.titre;
 	}
 
 }
