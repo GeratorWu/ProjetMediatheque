@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 import Abonne.Abonne;
+import Exception.RestrictionException;
 import Mediatheque.Document;
 
 public class DVD implements Document{
@@ -41,12 +42,16 @@ public class DVD implements Document{
 	}
 
 	@Override
-	public void reservationPour(Abonne ab) {
+	public void reservationPour(Abonne ab) throws RestrictionException {
 		synchronized (this) {
-			assert (this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
-			assert (this.reserveur() == null) : "Le DVD est réservé jusqu'à " + this.getHeureReserve();
-			if (this.getAdulte()) {
-				assert (this.getAdulte() == ab.getAdulte()) : "Vous n'avez pas l'âge pour réserver ce DVD.";
+			if (this.emprunteur() != null) {
+				throw new RestrictionException("Le DVD a déjà été emprunté.");
+			}
+			if (this.reserveur() != null) {
+				throw new RestrictionException("Le DVD est réservé jusqu'à " + this.getHeureReserve());
+			}
+			if (this.getAdulte() && !ab.getAdulte()) {
+				throw new RestrictionException("Vous n'avez pas l'âge pour réserver ce DVD.");
 			}
 			this.reserveur = ab;
 		}
@@ -65,25 +70,30 @@ public class DVD implements Document{
 	}
 	
 	@Override
-	public void empruntPar(Abonne ab) {
+	public void empruntPar(Abonne ab) throws RestrictionException {
 		synchronized (this) {
-			assert (this.emprunteur() == null) : "Le DVD a déjà été emprunté.";
-			assert (this.reserveur() == null || this.reserveur().getIdAbonne().equals(ab.getIdAbonne()))
-					: "Le DVD est réservé jusqu'à " + this.heurereserve;
-			if (this.getAdulte()) {
-				assert (this.getAdulte() == ab.getAdulte()) : "Vous n'avez pas l'âge pour emprunter ce DVD.";
+			if (this.emprunteur() != null) {
+				throw new RestrictionException("Le DVD a déjà été emprunté.");
+			}
+			if (this.reserveur() != null && !this.reserveur().getIdAbonne().equals(ab.getIdAbonne())) {
+				throw new RestrictionException("Le DVD est réservé jusqu'à " + this.heurereserve);
+			}
+			if (this.getAdulte() && !ab.getAdulte()) {
+				throw new RestrictionException("Vous n'avez pas l'âge pour emprunter ce DVD.");
 			}
 			this.emprunteur = ab;
 			this.reserveur = null;
 		}
-		
 	}
 
 	@Override
-	public void retour() {
-		assert((this.emprunteur() == null && this.reserveur() != null) || (this.emprunteur() != null && this.reserveur() == null)) : "Le DVD que vous souhaitez rendre est déjà chez nous.";
-		this.emprunteur = null;
-		this.reserveur = null;
+	public void retour() throws RestrictionException {
+		if ((this.emprunteur() == null && this.reserveur() != null) || (this.emprunteur() != null && this.reserveur() == null)) {
+			this.emprunteur = null;
+			this.reserveur = null;
+		} else {
+			throw new RestrictionException("Le DVD que vous souhaitez rendre est déjà chez nous.");
+		}
 	}
 	
 	public boolean disponible(){

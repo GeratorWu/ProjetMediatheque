@@ -17,6 +17,7 @@ import java.util.concurrent.CountDownLatch;
 
 import Abonne.Abonne;
 import Document.DVD;
+import Exception.RestrictionException;
 import Timer.Timer;
 import bttp2.Codage;
 
@@ -107,8 +108,8 @@ public class Service implements Runnable{
 			try { rs.close(); } catch (Exception e) {}
 	        try { stmt.close(); } catch (Exception e) {}
 			this.socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException | RestrictionException e) {
+			System.out.println(e);
 		}	
 		
 	}
