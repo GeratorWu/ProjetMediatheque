@@ -39,9 +39,10 @@ public class Service implements Runnable{
 	}
 	public void run() {
 		Scanner socketIn;
+		PrintWriter socketOut = null;
 		try {
 			System.out.println("Serveur démarré sur le port : " + socket.getLocalPort());
-			PrintWriter socketOut = new PrintWriter (socket.getOutputStream ( ), true);
+			socketOut = new PrintWriter (socket.getOutputStream ( ), true);
 			socketIn = new Scanner(new InputStreamReader(socket.getInputStream ( )));
 			int idAbonne;
 			int idDvd = 0;
@@ -109,7 +110,7 @@ public class Service implements Runnable{
 	        try { stmt.close(); } catch (Exception e) {}
 			this.socket.close();
 		} catch (IOException | RestrictionException e) {
-			System.out.println(e);
+			socketOut.println(e.getMessage());
 		}	
 		
 	}
