@@ -13,12 +13,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.CountDownLatch;
 
 import Abonne.Abonne;
 import Document.DVD;
 import Exception.RestrictionException;
-import Timer.Timer;
+import Mediatheque.Document;
 import bttp2.Codage;
 
 public class Service implements Runnable{
@@ -28,14 +27,14 @@ public class Service implements Runnable{
 	private Statement stmt = null;
     private ResultSet rs = null;
     private static List<Abonne> listeAbonne = new ArrayList<Abonne>();
-	private static List<DVD> listeDVD = new ArrayList<DVD>();
+	private static List<Document> listeDocument = new ArrayList<Document>();
 	
 	public Service(Socket socket) {
 		this.socket = socket;
 		conn = new DatabaseConnection();
 		connection = conn.getConnection();
 		listeAbonne = this.creationObjetAbonne();
-		listeDVD = this.creationObjetDvd();
+		listeDocument = this.creationObjetDocument();
 	}
 	public void run() {
 		Scanner socketIn;
@@ -47,58 +46,41 @@ public class Service implements Runnable{
 			int idAbonne;
 			int idDvd = 0;
 			Abonne ab;
-			DVD dvd;
+			Document dvd;
 
 			switch(socket.getLocalPort()) { // Afficher le service en fonction du port connecté.
 			case 3000: // Réservation
-				CountDownLatch countDownLatch = new CountDownLatch(1); // Création du Timer
+				
 				
 				socketOut.println(Codage.coder(this.DVDDisponible()));  // Codage du message envoyer au client.
 				idAbonne = socketIn.nextInt(); // On récupère l'idAbonné du client
 				ab = this.trouverAbonneParId(idAbonne); // On stock l'abonné trouver via une requete vers le serveur.
 				idDvd = socketIn.nextInt(); // On fait la même chose pour le DVD
-				dvd = this.trouverDVDParId(idDvd);
+				dvd = this.trouverDocumentParId(idDvd);
 				dvd.reservationPour(ab); // On réserve le dvd pour l'abonné.
-				dvd.setHeureReserve(); // On stock l'heure de fin de réservation.
-				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez réserver le DVD : " + dvd.getTitre() + ", vous avez jusqu'à " + dvd.getHeure2h() + " pour l'emprunter");
+				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez réserver le DVD : " + dvd.toString() + ", vous avez 2 heures pour l'emprunter");
 				this.sauvegardeDVD(idDvd); // On met à jour la base de données avec le nouveau DVD.
 				
-				Thread timer; // On lance un timer pour 2h, si le timer est écoulé, la réservation est annulée.
-				while(true) {
-					timer = new Thread(new Timer(1000 * 60 * 60 * 2, this.socket, countDownLatch));
-					timer.start();
-					try {
-					    countDownLatch.await();
-					} catch (InterruptedException e) {
-					    e.printStackTrace();
-					}
-					timer.interrupt();
-					
-					if(dvd.emprunteur() == null){
-						dvd.annulerReservation();
-					    this.sauvegardeDVD(idDvd);
-					}
-					break;
-				}
+				
 				break;
 			case 4000: // Emprunt
 				idAbonne = socketIn.nextInt();
 				ab = this.trouverAbonneParId(idAbonne);
 				idDvd = socketIn.nextInt();
-				dvd = this.trouverDVDParId(idDvd);
+				dvd = this.trouverDocumentParId(idDvd);
 				dvd.empruntPar(ab);
-				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez emprunter le DVD : " + dvd.getTitre());
+				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez emprunter le DVD : " + dvd.toString());
 				break;
 			case 5000: // Retour
 				idDvd = socketIn.nextInt();
-				dvd = this.trouverDVDParId(idDvd);
+				dvd = this.trouverDocumentParId(idDvd);
 				if(dvd.emprunteur() != null) {
 					dvd.retour();
-					socketOut.println("Bonjour, merci d'avoir rendu le DVD : " + dvd.getTitre());
+					socketOut.println("Bonjour, merci d'avoir rendu le DVD : " + dvd.toString());
 				}
 				else{
 					dvd.retour();
-					socketOut.println("Bonjour, la réservation a bien été annulé pour le DVD : " + dvd.getTitre());
+					socketOut.println("Bonjour, la réservation a bien été annulé pour le DVD : " + dvd.toString());
 				}
 				break;
 			default:
@@ -115,8 +97,8 @@ public class Service implements Runnable{
 		
 	}
 	
-	public List<DVD> creationObjetDvd() { // Création des objets DVD
-		List<DVD> listeDVD = new ArrayList<DVD>();
+	public List<Document> creationObjetDocument() { // Création des objets DVD
+		List<Document> listeDocument = new ArrayList<Document>();
 		Integer emprunteurtmp;
 		Integer reserveurtmp;
 		try {
@@ -132,13 +114,13 @@ public class Service implements Runnable{
 				Abonne emprunteur = this.trouverAbonneParId(emprunteurtmp);
 				reserveurtmp = rs.getInt("reserveur");
 				Abonne reserveur = this.trouverAbonneParId(reserveurtmp);
-				listeDVD.add(new DVD(id, titre, adulte, emprunteur, reserveur));
+				listeDocument.add(new DVD(id, titre, adulte, emprunteur, reserveur));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
-        return listeDVD;
+        return listeDocument;
 	}
 	
 	public List<Abonne> creationObjetAbonne() { // Création des objets abonnées.
@@ -163,9 +145,9 @@ public class Service implements Runnable{
 		return listeAbonne;
 	}
 	
-	public DVD trouverDVDParId(int id) { // Trouver un DVD via l'id
-		assert(id <= listeDVD.size()) : "Ce DVD n'existe pas";
-	    for (DVD dvd : listeDVD) {
+	public Document trouverDocumentParId(int id) { // Trouver un DVD via l'id
+		assert(id <= listeDocument.size()) : "Ce document n'existe pas";
+	    for (Document dvd : listeDocument) {
 	        if (dvd.numero() == id) {
 	            return dvd;
 	        }
@@ -184,7 +166,7 @@ public class Service implements Runnable{
 	}
 	
 	public void sauvegardeDVD(int idDvd) { // Sauvegarder tous les DVD
-		DVD dvd = this.trouverDVDParId(idDvd);
+		Document dvd = this.trouverDocumentParId(idDvd);
 		Integer a = 0;
 		Integer b = 0;
 		try {
@@ -222,9 +204,9 @@ public class Service implements Runnable{
 	
 	public String DVDDisponible() { //Afficher les DVD au client grâce au codage
 		StringBuilder sb = new StringBuilder("Voici la liste des DVD disponibles :##");
-		for (DVD dispodvd : listeDVD) {
-			if (dispodvd.disponible()) {
-					sb.append("Numéro du DVD : ").append(dispodvd.numero()).append(", il a pour titre : ").append(dispodvd.getTitre()).append("##");
+		for (Document dispodvd : listeDocument) {
+			if (dispodvd.reserveur() == null && dispodvd.emprunteur() == null) {
+					sb.append("Numéro du DVD : ").append(dispodvd.numero()).append(", il a pour titre : ").append(dispodvd.toString()).append("##");
 			}
 		}
 		return sb.toString();

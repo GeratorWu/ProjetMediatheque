@@ -2,10 +2,12 @@ package Document;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.CountDownLatch;
 
 import Abonne.Abonne;
 import Exception.RestrictionException;
 import Mediatheque.Document;
+import Timer.Timer;
 
 public class DVD implements Document{
 	private int idDvd;
@@ -54,10 +56,8 @@ public class DVD implements Document{
 				throw new RestrictionException("Vous n'avez pas l'âge pour réserver ce DVD.");
 			}
 			this.reserveur = ab;
+			this.heurereserve = this.heure.plusHours(2);		
 		}
-	}
-	public void setHeureReserve() { // Avoir l'heure limite de réservation, c'est à dire 2 heures.
-		this.heurereserve = this.heure.plusHours(2);
 	}
 	
 	public LocalTime getHeureReserve(){
@@ -65,6 +65,23 @@ public class DVD implements Document{
 	}
 	
 	public void annulerReservation() {
+		CountDownLatch countDownLatch = new CountDownLatch(1); // Création du Timer
+		Thread timer; // On lance un timer pour 2h, si le timer est écoulé, la réservation est annulée.
+		while(true) {
+			timer = new Thread(new Timer(1000 * 60 * 60 * 2, countDownLatch)); 
+			timer.start();
+			try {
+			    countDownLatch.await();
+			} catch (InterruptedException e) {
+			    e.printStackTrace();
+			}
+			timer.interrupt();
+			
+			if(this.emprunteur() == null){
+				this.annulerReservation();
+			}
+			break;
+		}
 	    System.out.println("La réservation pour le DVD " + titre + " a été annulée.");
 	    reserveur = null;
 	}
@@ -95,21 +112,11 @@ public class DVD implements Document{
 			throw new RestrictionException("Le DVD que vous souhaitez rendre est déjà chez nous.");
 		}
 	}
-	
-	public boolean disponible(){ // Savoir si le DVD est disponible
-		if (this.reserveur() == null && this.emprunteur() == null)
-			return true;
-		return false;
-	}
 
 	public boolean getAdulte() { // Savoir si le DVD est pour les adultes.
 		return adulte;
 	}
 
-	public String getTitre() {
-		return titre;
-	}
-	
 	public String getHeure2h() { // Avoir l'heure dans deux heures.
 		return this.heure.plusHours(2).format(formatter);
 	}
