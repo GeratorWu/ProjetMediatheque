@@ -38,7 +38,7 @@ public class Abonne {
 		return this.adulte;
 	}
 
-	public boolean estAdulte(LocalDate dateNaissance2) {
+	public boolean estAdulte(LocalDate dateNaissance2) { // Savoir si l'abonné est adulte pour les réservations et emprunts.
 	    LocalDate maintenant = LocalDate.now();
 	    Period periode = Period.between(dateNaissance2, maintenant);
 	    int age = periode.getYears();

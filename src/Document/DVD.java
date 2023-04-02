@@ -42,7 +42,7 @@ public class DVD implements Document{
 	}
 
 	@Override
-	public void reservationPour(Abonne ab) throws RestrictionException {
+	public void reservationPour(Abonne ab) throws RestrictionException { // Réservation pour un abonné
 		synchronized (this) {
 			if (this.emprunteur() != null) {
 				throw new RestrictionException("Le DVD a déjà été emprunté.");
@@ -56,7 +56,7 @@ public class DVD implements Document{
 			this.reserveur = ab;
 		}
 	}
-	public void setHeureReserve() {
+	public void setHeureReserve() { // Avoir l'heure limite de réservation, c'est à dire 2 heures.
 		this.heurereserve = this.heure.plusHours(2);
 	}
 	
@@ -70,7 +70,7 @@ public class DVD implements Document{
 	}
 	
 	@Override
-	public void empruntPar(Abonne ab) throws RestrictionException {
+	public void empruntPar(Abonne ab) throws RestrictionException { // Emprunt par un abonné.
 		synchronized (this) {
 			if (this.emprunteur() != null) {
 				throw new RestrictionException("Le DVD a déjà été emprunté.");
@@ -87,7 +87,7 @@ public class DVD implements Document{
 	}
 
 	@Override
-	public void retour() throws RestrictionException {
+	public void retour() throws RestrictionException { // Retour du DVD.
 		if ((this.emprunteur() == null && this.reserveur() != null) || (this.emprunteur() != null && this.reserveur() == null)) {
 			this.emprunteur = null;
 			this.reserveur = null;
@@ -96,13 +96,13 @@ public class DVD implements Document{
 		}
 	}
 	
-	public boolean disponible(){
+	public boolean disponible(){ // Savoir si le DVD est disponible
 		if (this.reserveur() == null && this.emprunteur() == null)
 			return true;
 		return false;
 	}
 
-	public boolean getAdulte() {
+	public boolean getAdulte() { // Savoir si le DVD est pour les adultes.
 		return adulte;
 	}
 
@@ -110,7 +110,7 @@ public class DVD implements Document{
 		return titre;
 	}
 	
-	public String getHeure2h() {
+	public String getHeure2h() { // Avoir l'heure dans deux heures.
 		return this.heure.plusHours(2).format(formatter);
 	}
 	

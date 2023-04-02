@@ -1,10 +1,10 @@
 package Serveur;
 import java.sql.*;
 
-public class DatabaseConnection {
+public class DatabaseConnection { // Connexion à la base de données.
 	private Connection connection;
 
-	public DatabaseConnection() {
+	public DatabaseConnection() { 
 	    try {
 	        Class.forName("com.mysql.cj.jdbc.Driver");
 
