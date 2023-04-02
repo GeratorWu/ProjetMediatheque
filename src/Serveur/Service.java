@@ -41,7 +41,7 @@ public class Service implements Runnable{
 		Scanner socketIn;
 		PrintWriter socketOut = null;
 		try {
-			System.out.println("Serveur démarré sur le port : " + socket.getLocalPort());
+			System.out.println("Serveur démarré sur le port : " + socket.getLocalPort()); //Vérification que le serveur a bien démarré.
 			socketOut = new PrintWriter (socket.getOutputStream ( ), true);
 			socketIn = new Scanner(new InputStreamReader(socket.getInputStream ( )));
 			int idAbonne;
@@ -49,21 +49,21 @@ public class Service implements Runnable{
 			Abonne ab;
 			DVD dvd;
 
-			switch(socket.getLocalPort()) {
-			case 3000:
-				CountDownLatch countDownLatch = new CountDownLatch(1);
+			switch(socket.getLocalPort()) { // Afficher le service en fonction du port connecté.
+			case 3000: // Réservation
+				CountDownLatch countDownLatch = new CountDownLatch(1); // Création du Timer
 				
-				socketOut.println(Codage.coder(this.DVDDisponible()));
-				idAbonne = socketIn.nextInt();
-				ab = this.trouverAbonneParId(idAbonne);
-				idDvd = socketIn.nextInt();
+				socketOut.println(Codage.coder(this.DVDDisponible()));  // Codage du message envoyer au client.
+				idAbonne = socketIn.nextInt(); // On récupère l'idAbonné du client
+				ab = this.trouverAbonneParId(idAbonne); // On stock l'abonné trouver via une requete vers le serveur.
+				idDvd = socketIn.nextInt(); // On fait la même chose pour le DVD
 				dvd = this.trouverDVDParId(idDvd);
-				dvd.reservationPour(ab);
-				dvd.setHeureReserve();
+				dvd.reservationPour(ab); // On réserve le dvd pour l'abonné.
+				dvd.setHeureReserve(); // On stock l'heure de fin de réservation.
 				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez réserver le DVD : " + dvd.getTitre() + ", vous avez jusqu'à " + dvd.getHeure2h() + " pour l'emprunter");
-				this.sauvegardeDVD(idDvd);
+				this.sauvegardeDVD(idDvd); // On met à jour la base de données avec le nouveau DVD.
 				
-				Thread timer;
+				Thread timer; // On lance un timer pour 2h, si le timer est écoulé, la réservation est annulée.
 				while(true) {
 					timer = new Thread(new Timer(1000 * 60 * 60 * 2, this.socket, countDownLatch));
 					timer.start();
@@ -81,7 +81,7 @@ public class Service implements Runnable{
 					break;
 				}
 				break;
-			case 4000:
+			case 4000: // Emprunt
 				idAbonne = socketIn.nextInt();
 				ab = this.trouverAbonneParId(idAbonne);
 				idDvd = socketIn.nextInt();
@@ -89,7 +89,7 @@ public class Service implements Runnable{
 				dvd.empruntPar(ab);
 				socketOut.println("Bonjour " + ab.getNom() + " " + ab.getPrenom() + ", vous avez emprunter le DVD : " + dvd.getTitre());
 				break;
-			case 5000:
+			case 5000: // Retour
 				idDvd = socketIn.nextInt();
 				dvd = this.trouverDVDParId(idDvd);
 				if(dvd.emprunteur() != null) {
@@ -109,13 +109,13 @@ public class Service implements Runnable{
 			try { rs.close(); } catch (Exception e) {}
 	        try { stmt.close(); } catch (Exception e) {}
 			this.socket.close();
-		} catch (IOException | RestrictionException e) {
+		} catch (IOException | RestrictionException e) { // On récupère les erreurs si le client fait n'importe quoi.
 			socketOut.println(e.getMessage());
 		}	
 		
 	}
 	
-	public List<DVD> creationObjetDvd() {
+	public List<DVD> creationObjetDvd() { // Création des objets DVD
 		List<DVD> listeDVD = new ArrayList<DVD>();
 		Integer emprunteurtmp;
 		Integer reserveurtmp;
@@ -141,7 +141,7 @@ public class Service implements Runnable{
         return listeDVD;
 	}
 	
-	public List<Abonne> creationObjetAbonne() {
+	public List<Abonne> creationObjetAbonne() { // Création des objets abonnées.
 		List<Abonne> listeAbonne = new ArrayList<Abonne>();
 		Date dateNaissanceTmp;
 		try {
@@ -163,7 +163,7 @@ public class Service implements Runnable{
 		return listeAbonne;
 	}
 	
-	public DVD trouverDVDParId(int id) {
+	public DVD trouverDVDParId(int id) { // Trouver un DVD via l'id
 		assert(id <= listeDVD.size()) : "Ce DVD n'existe pas";
 	    for (DVD dvd : listeDVD) {
 	        if (dvd.numero() == id) {
@@ -173,7 +173,7 @@ public class Service implements Runnable{
 	    return null;
 	}
 	
-	public Abonne trouverAbonneParId(int id) {
+	public Abonne trouverAbonneParId(int id) { // Trouver un abonne via l'id
 		assert(id <= listeAbonne.size()) : "Cet abonné n'existe pas";
 	    for (Abonne abonne : listeAbonne) {
 	        if (abonne.getIdAbonne() == id) {
@@ -183,7 +183,7 @@ public class Service implements Runnable{
 	    return null;
 	}
 	
-	public void sauvegardeDVD(int idDvd) {
+	public void sauvegardeDVD(int idDvd) { // Sauvegarder tous les DVD
 		DVD dvd = this.trouverDVDParId(idDvd);
 		Integer a = 0;
 		Integer b = 0;
@@ -220,7 +220,7 @@ public class Service implements Runnable{
 		}
 	}
 	
-	public String DVDDisponible() {
+	public String DVDDisponible() { //Afficher les DVD au client grâce au codage
 		StringBuilder sb = new StringBuilder("Voici la liste des DVD disponibles :##");
 		for (DVD dispodvd : listeDVD) {
 			if (dispodvd.disponible()) {

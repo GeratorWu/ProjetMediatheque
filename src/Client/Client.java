@@ -9,7 +9,7 @@ import bttp2.Codage;
 
 public class Client {
 
-	  public static void main(String[] args) throws IOException {
+	  public static void main(String[] args) throws IOException { //Création du client avec le port utilisé
 		  int port = Integer.parseInt(args[0]);
 
 		    Socket socket = null;
